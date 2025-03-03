@@ -22,7 +22,7 @@ Many of the classes implement generic utility functions, e.g., to format
 the inputs fed to the classifier.
 The class that contains the actual implementation of the theoretical
 description is NeuNet. Cues to the implementation of the theoretical concepts
-are given by the "theory-ref" keyword comments.
+are given by the <theory-ref> keyword comments.
 
 Features:
   - One-file, self-contained implementation
@@ -324,7 +324,7 @@ class MlpWrk :
         if not 'onehot_limit' in object.aux_param :
             object.aux_param['onehot_limit'] = 10
         if not 'scale_input' in object.aux_param :
-            object.aux_param['scale_input'] = False
+            object.aux_param['scale_input'] = True
 
         object.neural_net = None
 
@@ -452,7 +452,13 @@ class MlpWrk :
         else :
             # if object.aux_param['predict_mode'] == 'regress'
             select_regression = True
-        MlpWrk.Misc.TracePrint(">> trace - select_regression:", select_regression)
+
+        if select_regression :
+            predictive_mode = 'regression'
+        else :
+            predictive_mode = 'classification'
+        # MlpWrk.Misc.TracePrint(">> trace - select_regression:", select_regression)
+        MlpWrk.Misc.TracePrint(">> trace - predictive_mode:", predictive_mode)
 
         # scale output
         out_min = object.fn_activ_min
@@ -558,7 +564,7 @@ class MlpWrk :
             @staticmethod
             def CalcOutput(object, stimuli) :
                 fn_activation = object['fn_activation']
-                # theory-ref:
+                # <theory-ref>
                 #   f_out() = f_activ(f_preact())
                 z = MlpWrk.Misc.FnPreact(stimuli, object['weights'], object['bias'])
                 object['last_preact'] = z
@@ -693,7 +699,7 @@ class MlpWrk :
                 residual = crt_out - crt_exp
                 f_deriv_loss = fn_deriv_loss(residual)
                 f_deriv_act = fn_deriv_activ(crt_neur['last_preact'])
-                # theory-ref:
+                # <theory-ref>
                 #   delta_L() = (f_deriv_loss(f_res()))*(f_deriv_act(f_preact_L))
                 delta_last = f_deriv_loss * f_deriv_act
                 crt_neur['delta'] = delta_last
@@ -712,7 +718,7 @@ class MlpWrk :
                         prev_neur = prev_layer[prev_idx_neur]
                         prev_weight = prev_neur['weights'][crt_idx_neur]
                         prev_delta = prev_neur['delta']
-                        # theory-ref:
+                        # <theory-ref>
                         #   d(f_preact_r)/d(f_preact_q) = (w_r)*(d(f_out_q)/d(f_preact_q))
                         crt_term = prev_weight * prev_delta
                         err_delta += crt_term
@@ -720,7 +726,7 @@ class MlpWrk :
                     layer_error_list.append(neur_loss_err)
                     delta_residual = err_delta
                     f_deriv_act = fn_deriv_activ(crt_neur['last_preact'])
-                    # theory-ref:
+                    # <theory-ref>
                     #   delta_q(f_preact_q) = delta_r(f_preact_r) * w_r * f_deriv_act(f_preact_q)
                     new_delta = delta_residual * f_deriv_act
                     crt_neur['delta'] = new_delta
@@ -737,7 +743,7 @@ class MlpWrk :
                     crt_neur = crt_layer[crt_idx_neur]
                     for crt_idx_inp in range(len(crt_stimuli)) :
                         crt_weight = crt_neur['weights'][crt_idx_inp]
-                        # theory-ref:
+                        # <theory-ref>
                         #   w_k_new = w_k_crt - learn_rate * (d(f_loss)/d(w_k))(w_k_crt)
                         dfloss_dw = crt_neur['delta'] * crt_stimuli[crt_idx_inp]
                         crt_diff = object.learn_rate * dfloss_dw
@@ -761,7 +767,7 @@ class MlpWrk :
         # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         @staticmethod
         def FnPreact(stimuli, weights, bias) :
-            # theory-ref:
+            # <theory-ref>
             #   f_preact() = Sum[k](w_k * in_k)
             z = Util.FnDotProd(stimuli, weights) + bias
             return z
@@ -1099,7 +1105,7 @@ class Util :
         return distinct_elem_no, elem_list, count_list
 
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    def SelectiveOneHotProc(in_vector, in_top_no) :
+    def SelectiveOneHotProc(in_vector, in_max_col = 0) :
 
         fn_ret_data = []
         # one iteration loop to allow unified return through loop breaks
@@ -1107,7 +1113,10 @@ class Util :
             vect_len = len(in_vector)
             ret_tuple = Util.SummaryFreqCount(in_vector)
             crt_types_no, crt_id_list, crt_count_list = ret_tuple
-            label_no = min(crt_types_no - 1, in_top_no)
+            if in_max_col == 0 :
+                label_no = crt_types_no - 1
+            else :
+                label_no = min(crt_types_no - 1, in_max_col)
             one_hot_dict = {}
             for crt_label_idx in range(label_no) :
                 crt_label_id = crt_id_list[crt_label_idx]
@@ -1371,7 +1380,7 @@ class Util :
 # >-----------------------------------------------------------------------------
 
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-def UnitTestNeurMe() :
+def UnitTestMlpup() :
 
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1381,62 +1390,9 @@ def UnitTestNeurMe() :
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    print ("scale test - 1")
-
-    test_list = [
-                    [30, 100, 0, 10, 0, 3],
-                    [30, -100, 0, 10, 0, -3],
-                    [30, -100, 0, -10, 0, 3],
-                    [30, 50, 0, 10, 0, 6],
-                    [30, 100, 50, 10, 0, -2],
-                    [30, 100, -50, 10, 0, 8],
-                    [0, 100, 0, 1, -2, -2],
-                ]
-    mismatch_no = 0
-    for crt_line in test_list :
-        print ("- - - - crt_line:", crt_line)
-        val_scale = MlpWrk.Misc.FnScaleValue(crt_line[0], crt_line[1], crt_line[2],
-                                                crt_line[3], crt_line[4])
-        print ("- - - - val_scale:", val_scale)
-        if val_scale == crt_line[5] :
-            print ("- - - - check 1 - ok")
-        else :
-            print ("- - - - check 1 - fail")
-            mismatch_no += 1
-
-        val_descale = MlpWrk.Misc.FnDescaleValue(val_scale, crt_line[1], crt_line[2],
-                                                    crt_line[3], crt_line[4])
-        print ("- - - - val_descale:", val_descale)
-        if val_descale == crt_line[0] :
-            print ("- - - - check 2 - ok")
-        else :
-            print ("- - - - check 2 - fail")
-            mismatch_no += 1
-
-    test_expect = 0
-    test_result = mismatch_no
-
-    print ("- - - - test_expect:", test_expect)
-    print ("- - - - test_result:", test_result)
     print ("- - - - ")
-
-    set_eval = ( test_result == test_expect )
-    print ("- - - - utest_test_no:", utest_test_no)
-    utest_test_no += 1
-    if set_eval :
-        print ("- - - -   test ok")
-    else :
-        print ("- - - -  test failed")
-        utest_fail_counter += 1
-        print ("- - - -  invalid test_result")
-
-        print ("- - - Unit test failure !")
-
-    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    print ("test basic - 1")
-    print ()
+    print ("- - test predict")
+    print ("- - - - ")
 
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1444,144 +1400,50 @@ def UnitTestNeurMe() :
 
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    ref_param_dict = {  'no_epochs': 100,
+                        'learn_rate': 0.1,
+                        'hid_dim_lst': [3, 2],
+                        'activation': 'sigmoid',
+                        # 'activation': 'tanh',
+                        'loss': 'mse',
+                        # 'loss': 'mae',
+                        'pattern_init': False,
+                        'predict_mode': 'auto',
+                        # 'predict_mode': 'regress',
+                        # 'predict_mode': 'classif',
+                        'trace_cfg': {
+                            'trace_enable': True,
+                            'epoch_period': 1,
+                        },
+                        'onehot_limit': 0,
+                        'scale_input': True,
+                    }
+
+    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     tr_X =  [
-                ['x', 100, 'x'],
-                ['x', 100, 'y'],
-                ['y', 100, 'x'],
-                ['y', 100, 'y'],
-                ['x', None, 'x'],
-                ['x', 105, 'y'],
-                ['y', 105, 'x'],
-                ['y', None, 'y'],
+                ['x', 'x'],
+                ['x', 'y'],
+                ['y', 'x'],
+                ['y', 'y'],
             ]
 
     tr_y =  [
-                'a',
-                'b',
-                'b',
-                'a',
                 0,
-                0,
-                0,
+                1,
+                1,
                 0,
             ]
 
     param_dict = {
-                    'predict_mode': 'classif',
+                    'predict_mode': 'auto',
                     'hid_dim_lst': [3, 2],
-                    'no_epochs': 3000,
+                    'no_epochs': 20000,
                     'trace_cfg': {
                         'trace_enable': True,
                         'epoch_period': 1000,
                     },
-                }
-
-    test_list.append((tr_X, tr_y, param_dict))
-
-    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    tr_X =  [
-                ['x', 100, 'x'],
-                ['x', 100, 'y'],
-                ['y', 100, 'x'],
-                ['y', 100, 'y'],
-                ['x', None, 'x'],
-                [None, 105, 'y'],
-                ['y', 105, None],
-                ['y', None, 'y'],
-            ]
-
-    tr_y =  [
-                'a',
-                'b',
-                'b',
-                'a',
-                0,
-                0,
-                0,
-                None,
-            ]
-
-    param_dict = {
-                    'predict_mode': 'classif',
-                    'hid_dim_lst': [3, 2],
-                    'no_epochs': 5000,
-                    'trace_cfg': {
-                        'trace_enable': False,
-                        'epoch_period': 500,
-                    },
-                }
-
-    test_list.append((tr_X, tr_y, param_dict))
-
-    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    tr_X =  [
-                [ 30, 'x', 'x'],
-                [ 30, 'x', 'y'],
-                [ 30, 'y', 'x'],
-                [ 30, 'y', 'y'],
-                [130, 'x', 'x'],
-                [130, 'x', 'y'],
-                [130, 'y', 'x'],
-                [130, 'y', 'y'],
-            ]
-
-    tr_y =  [
-                'a',
-                'b',
-                'b',
-                'a',
-                'c',
-                'd',
-                'd',
-                'c',
-            ]
-
-    param_dict = {
-                    'predict_mode': 'classif',
-                    'hid_dim_lst': [3, 2],
-                    'no_epochs': 3000,
-                    'trace_cfg': {
-                        'trace_enable': True,
-                        'epoch_period': 500,
-                    },
-                }
-
-    test_list.append((tr_X, tr_y, param_dict))
-
-    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    tr_X =  [
-                ['x', 100, 'x'],
-                ['x', 100, 'y'],
-                ['y', 100, 'x'],
-                ['y', 100, 'y'],
-                ['x', None, 'x'],
-                ['x', 105, 'y'],
-                ['y', 105, 'x'],
-                ['y', None, 'y'],
-            ]
-
-    tr_y =  [
-                10,
-                -10,
-                -10,
-                10,
-                0,
-                0,
-                0,
-                0,
-            ]
-
-    param_dict = {
-                    'predict_mode': 'regress',
-                    'hid_dim_lst': [3, 2],
-                    'no_epochs': 3000,
-                    'trace_cfg': {
-                        'trace_enable': False,
-                        'epoch_period': 500,
-                    },
+                    'onehot_limit': 0,
                 }
 
     test_list.append((tr_X, tr_y, param_dict))
@@ -1596,55 +1458,59 @@ def UnitTestNeurMe() :
             ]
 
     tr_y =  [
-                -10,
-                10,
-                10,
-                -10,
+                'False',
+                'True',
+                'True',
+                'False',
             ]
 
     param_dict = {
-                    'predict_mode': 'regress',
+                    'predict_mode': 'classif',
                     'hid_dim_lst': [3, 2],
-                    'no_epochs': 18500,
+                    'no_epochs': 20000,
                     'trace_cfg': {
                         'trace_enable': True,
-                        'epoch_period': 500,
+                        'epoch_period': 1000,
                     },
+                    'onehot_limit': 0,
                 }
 
     test_list.append((tr_X, tr_y, param_dict))
 
     # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    learn_rate = 0.2
-    no_epochs = 5
-    hid_dim_lst = [3, 2]
+    tr_X =  [
+                ['x', 'x'],
+                ['x', 'y'],
+                ['y', 'x'],
+                ['y', 'y'],
+            ]
 
-    ref_param_dict = {  'no_epochs': no_epochs,
-                        'learn_rate': learn_rate,
-                        'hid_dim_lst': hid_dim_lst,
-                        'activation': 'sigmoid',
-                        # 'activation': 'tanh',
-                        'loss': 'mse',
-                        # 'loss': 'mae',
-                        # 'loss': 'pow3',
-                        # 'loss': 'pow4',
-                        # 'pattern_init': True,
-                        'pattern_init': False,
-                        'predict_mode': 'regress',
-                        # 'predict_mode': 'auto',
-                        # 'predict_mode': 'classif',
-                        'trace_cfg': {
-                            'trace_enable': True,
-                            'epoch_period': 1,
-                        },
-                        'onehot_limit': 55,
-                        'scale_input': True,
-                         # 'scale_input': False,
-                    }
+    tr_y =  [
+                -100,
+                100,
+                100,
+                -100,
+            ]
 
-    test_len = len(test_list)
-    for crt_idx in range(test_len) :
+    param_dict = {
+                    'predict_mode': 'regress',
+                    'hid_dim_lst': [3, 2],
+                    'no_epochs': 30000,
+                    'trace_cfg': {
+                        'trace_enable': True,
+                        'epoch_period': 5000,
+                    },
+                    'onehot_limit': 0,
+                }
+
+    test_list.append((tr_X, tr_y, param_dict))
+
+    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    test_elem_no = len(test_list)
+    for crt_idx in range(test_elem_no) :
 
         crt_pair = test_list[crt_idx]
         tr_X = crt_pair[0]
@@ -1659,13 +1525,16 @@ def UnitTestNeurMe() :
         print ("- - - - tt_t:", tt_t)
         print ("- - - - tt_e:", tt_e)
 
-
         aux_param_dict = dict(ref_param_dict)
         Util.UpdateDict(aux_param_dict, tr_param)
-        tt_o = MlpUnivPredict(aux_param_dict)
         print ("- - - - aux_param_dict:", aux_param_dict)
 
+        print ("- - - - ")
+        print ("- - - - create predictive object")
+        tt_o = MlpUnivPredict(aux_param_dict)
+        print ("- - - - fit")
         tt_o.fit(tr_X, tr_y)
+        print ("- - - - predict")
         tt_predict = tt_o.predict(tt_t)
         print ("- - - - ")
 
@@ -1700,13 +1569,15 @@ if __name__ == "__main__":
     # >-----------------------------------------------------------------------------
     Util.SepLine()
     Util.CrtTimeStamp()
+    Util.SepLine()
     # >-----------------------------------------------------------------------------
 
-    UnitTestNeurMe()
+    UnitTestMlpup()
 
     # >-----------------------------------------------------------------------------
     Util.SepLine()
     Util.CrtTimeStamp()
+    Util.SepLine()
     # >-----------------------------------------------------------------------------
 
 # >-----------------------------------------------------------------------------
