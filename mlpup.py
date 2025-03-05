@@ -11,18 +11,19 @@
 
 """
 This is a one-file implementation of a Multi-Layer Perceptron (MLP).
-It is intended for didactic purposes and does not attempt any performance
-optimization.
+It is intended as a basic implementation of the backpropagation
+algorithm and does not attempt any performance optimization.
 
 The first part contains comments describing a theoretical derivation for
-backpropagation.
-The second part contains code that implements the theoretical description.
+backpropagation. The second part contains code that implements the
+theoretical description.
+
 Several classes are used, but mostly for encapsulation purposes.
 Many of the classes implement generic utility functions, e.g., to format
-the inputs fed to the classifier.
-The class that contains the actual implementation of the theoretical
-description is NeuNet. Cues to the implementation of the theoretical concepts
-are given by the <theory-ref> keyword comments.
+the inputs fed to the classifier and the translation of outputs.
+The class that contains the actual implementation of the core
+functionality is NeuNet. Cues to the implementation of the theoretical
+concepts are given by the <theory-ref> keyword comments.
 
 Features:
   - One-file, self-contained implementation
@@ -30,9 +31,9 @@ Features:
       functionality. NumPy and others are used only for preparing the
       feed data.
   - Compatibility with classifier usage in scikit-learn
-  - Able to process most CSV files
   - Accepts a mix of continuous and categorical data
-  - Several activation and loss functions are provided. New ones can be added.
+  - Several activation and loss functions are provided.
+  - Can also do basic regression
 
 """
 
