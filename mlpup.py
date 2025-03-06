@@ -3,13 +3,15 @@
 
 #   c4pub@git 2025
 #
-# Latest version available at: https://github.com/c4pub/deodel
+# Latest version available at: https://github.com/c4pub/mlpup
 #
 
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 """
+MLP Universal Predictor
+
 This is a one-file implementation of a Multi-Layer Perceptron (MLP).
 It is intended as a basic implementation of the backpropagation
 algorithm and does not attempt any performance optimization.
@@ -268,7 +270,7 @@ class MlpUnivPredict :
     def __init__(self, aux_param = None) :
         MlpWrk.Init(self, aux_param)
 
-    version = 0.901
+    version = 0.903
 
     def __repr__(self):
         '''Returns representation of the object'''

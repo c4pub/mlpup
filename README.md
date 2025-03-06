@@ -1,4 +1,4 @@
-# Multi-Layer Perceptron Implementation
+# Multi-Layer Perceptron Universal Predictor
 A simple, one-file implementation of a Multi-Layer Perceptron (MLP).
 
 ## Overview
