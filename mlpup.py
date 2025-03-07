@@ -42,7 +42,6 @@ Features:
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
 '''
 
     (*) Theoretical background on back-propagation and weights update.
@@ -252,7 +251,6 @@ Features:
 
 '''
 
-
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # >- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -270,7 +268,7 @@ class MlpUnivPredict :
     def __init__(self, aux_param = None) :
         MlpWrk.Init(self, aux_param)
 
-    version = 0.903
+    version = 1.01
 
     def __repr__(self):
         '''Returns representation of the object'''
@@ -1444,7 +1442,7 @@ def UnitTestMlpup() :
                     'no_epochs': 20000,
                     'trace_cfg': {
                         'trace_enable': True,
-                        'epoch_period': 1000,
+                        'epoch_period': 2000,
                     },
                     'onehot_limit': 0,
                 }
@@ -1473,7 +1471,7 @@ def UnitTestMlpup() :
                     'no_epochs': 20000,
                     'trace_cfg': {
                         'trace_enable': True,
-                        'epoch_period': 1000,
+                        'epoch_period': 2000,
                     },
                     'onehot_limit': 0,
                 }
