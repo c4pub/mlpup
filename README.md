@@ -6,6 +6,7 @@ This is a basic implementation of a Multi-Layer Perceptron. It's not optimized f
 
 ## Features
 * One-file, self-contained implementation
+* Contains a theoretical derivation of the backpropagation algorithm using calculus
 * No external libraries are used for core functionality (NumPy and others are used for input/output processing)
 * Compatible with classifier usage as in scikit-learn
 * Accepts a mix of continuous and categorical data
