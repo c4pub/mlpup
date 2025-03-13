@@ -215,7 +215,7 @@ Features:
             d(f_preact_r)/d(f_preact_q) = (w_r)*(f_deriv_act(f_preact_q))
 
         delta_q = delta_r * w_r * f_deriv_act
-        delta_q(f_preact_q) = delta_r(f_preact_r) * w_r * f_deriv_act(f_preact_q)
+        delta_q(f_preact_q) = delta_r(f_preact_r) *w_r* f_deriv_act(f_preact_q)
 
     (*) The delta function on the last layer neuron:
 
